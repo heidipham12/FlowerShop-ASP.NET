@@ -1,0 +1,223 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/FlowerLayout.cshtml";
+}
+
+@section FLOWERS{
+    <div class="featured-content">
+        <div id="column1">
+            <h2>Maecenas luctus</h2>
+            <p><img src="~/Assets/images/img06.jpg" width="300" height="150" alt="" /></p>
+            <p>Etiam non felis. Donec ut ante. In id eros. Suspendisse lacus turpis, cursus egestas at sem. Mauris quam enim, molestie.</p>
+            <p class="button"><a href="#">Read More</a></p>
+        </div>
+        <div id="column2">
+            <h2>Fusce fringilla</h2>
+            <p><img src="~/Assets/images/img07.jpg" width="300" height="150" alt="" /></p>
+            <p>Etiam non felis. Donec ut ante. In id eros. Suspendisse lacus turpis, cursus egestas at sem. Mauris quam enim, molestie.</p>
+            <p class="button"><a href="#">Read More</a></p>
+        </div>
+        <div id="column3">
+            <h2>Praesent mattis</h2>
+            <p><img src="~/Assets/images/img08.jpg" width="300" height="150" alt="" /></p>
+            <p>Etiam non felis. Donec ut ante. In id eros. Suspendisse lacus turpis, cursus egestas at sem. Mauris quam enim, molestie.</p>
+            <p class="button"><a href="#">Read More</a></p>
+        </div>
+    </div>
+}
+
+@section MODEL_DIALOG{
+    <div class="modal fade" id="CreateEditModal" role="dialog">
+        <div class="modal-dialog btn-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><label id="title">No Title</label></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-md-10">
+                                <input type="hidden" class="form-control" id="Id" />
+                                <label>Flower Names</label>
+                                <input type="text" id="FlowerName" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-10">
+                                @using (Html.BeginForm("Index", "Flower", null, FormMethod.Post,
+                                    new { enctype = "multipart/form-data", id = "UploadForm" }))
+                                {
+                                    <label>Image Path</label>
+                                    <input type="file" name="file" class="form-control-file" id="ImagePath" />
+                                    <input type="submit" id="btnsubmit" class="hidden" />
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-10">
+                                <label>Description</label>
+                                <input type="text" id="Description" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnClose" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnSave" class="btn btn-primary" data-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Script{
+    <script type="text/javascript">var isUpdatable = false;
+        var currentUpdatePath = "";
+        var currentId = 0;
+
+
+        $(document).ready(function () {
+            showFlowerInfo();
+
+            $("#btnCreateNew").click(function (e) {
+                isUpdatable = false;
+                $("#title").text("Create New");
+            });
+
+            $("#btnClose").click(function (e) {
+                clearModalContent();
+            });
+
+            $("#btnSave").click(function (e) {
+                var data = {
+                    Id: $("#ID").val(),
+                    FlowerName: $.trim($("#FlowerName").val()),
+                    ImagePath: $("#ImagePath").val(),
+                    description: $("#Description").val()
+                }
+                if (!isUpdatable) {
+                    if (!data.ImagePath || !data.FlowerName) {
+                        alert("You should input FLOWER NAME and choose FLOWER IMAGE");
+                        return;
+                    }
+                }
+                else {
+                    if (!data.ImagePath)
+                        data.ImagePath = currentUpdatePath;
+                    data.ID = currentID;
+                }
+
+                alert(data.ImagePath);
+                $("#UploadForm").submit();
+
+                if (!isUpdatable) {
+                    $.ajax({
+                        url: '/Flower/Create/',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: data,
+                        success: function (data) {
+                            showFlowerInfo();
+                            clearModalContent();
+                        },
+                        error: function (err) {
+                            alert("Error:" + err.responseText);
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        url: '/Flower/Update/',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: data,
+                        success: function (data) {
+                            showFlowerInfo();
+                            clearModalContent();
+                        },
+                        error: function (err) {
+                            alert("Error:" + err.responseText);
+                        }
+                    });
+                }
+            });
+
+            function clearModalContent() {
+                $("#FlowerName").val(""),
+                    $("#ImagePath").val(""),
+                    $("#Description").val("");
+            }
+        });
+
+        function showFlowerInfo() {
+            $.ajax({
+                url: '/Flower/ListFlowers/',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $.each(data, function (i, item) {
+                        var id = item.Id;
+                        var flowername = item.FlowerName;
+                        var flowerpath = item.ImagePath;
+                        var flowerdescrip = item.Description;
+                        var classname = ".featured-content";
+                        AppendNewFlower(id,classname, flowername, flowerpath, flowerdescrip);
+                    });
+                },
+                error: function (err) {
+                    alert("Error:" + err.responseText);
+                }
+            });
+            function AppendNewFlower(id, classname, flowername, flowerpath, flowerdescrip) {
+                var row = ' ';
+                row += "<div id='column1'>";
+                row += "<h2>" + flowername + "</h2>";
+                row += "<p><img src=\"/Assets/images/" + flowerpath + "\" width='283' height='150' alt='" + flowername + "' /></p>";
+                row += "<p>" + flowerdescrip + "</p>";
+                row += "<p><span><button href='#' class='button' id='btnEdit' data-toggle ='modal'";
+                row += "data - target='#CreateEditModal' onclick = 'return getDetailFlower(" + id + ")' > Edit</button ></span > ";
+                row += "<span><button href='#'  class='button' id='btnDelete' onclick='return deleteFlower(" + id + ")'>";
+                rơ += "Delete</button></span></p>";
+                row += "</div>";
+                $(classname).append(row);
+            }
+        }
+        function deleteFlower(id) {
+            var confirmDelete = confirm("Do you want to delete flower ?");
+            $.ajax({
+                url: '/Flower/Delete/' + id,
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    showFlowerInfo();
+                },
+                error: function (err) {
+                    alert("Error:" + err.responseText);
+                }
+            });
+        }
+
+        function getDetailFlower(id) {
+            isUpdatable = true;
+            currentUpdatePath = "";
+            currentId = 0;
+            $("#title").text("Edit");
+            $.ajax({
+                url: '/Flower/Get/' + id,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $("#FlowerName").val(data.FlowerName);
+                    $("#Description").val(data.Description.trim());
+                    currentUpdatePath = data.ImagePath;
+                    currentId = data.Id;
+                },
+                error: function (err) {
+                    alert("Error:" + err.responseText);
+                }
+            });
+        }</script>
+}
+

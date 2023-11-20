@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="FlowerDB">
+  <DataContextMoniker Name="/FlowerDBDataContext" />
+  <nestedChildShapes>
+    <classShape Id="fd0fc3ff-189b-4aac-98a0-8a909cecf9c3" absoluteBounds="2.875, 1.625, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/FlowerDBDataContext/Flower_table" />
+      <nestedChildShapes>
+        <elementListCompartment Id="b4dc8e9c-522f-448b-ba85-3248000c1180" absoluteBounds="2.89, 2.085, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>
